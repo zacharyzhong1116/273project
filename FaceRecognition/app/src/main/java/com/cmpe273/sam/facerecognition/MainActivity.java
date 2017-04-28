@@ -7,6 +7,7 @@ import android.content.Intent;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.drawable.BitmapDrawable;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Environment;
@@ -18,6 +19,7 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.Toast;
 
 import java.io.BufferedWriter;
 import java.io.ByteArrayOutputStream;
@@ -67,10 +69,13 @@ public class MainActivity extends AppCompatActivity {
 
     public void jumpToCamera(){
         Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-        fileUri = Uri.fromFile(getOutPutImageFile());
+        //fileUri = Uri.fromFile(getOutPutImageFile());
         takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, fileUri);
         if (takePictureIntent.resolveActivity(getPackageManager()) != null) {
             startActivityForResult(takePictureIntent, REQUEST_IMAGE_CAPTURE);
+        }
+        else {
+            Toast.makeText(getApplication(), "Camera not supported", Toast.LENGTH_LONG).show();
         }
     }
 
@@ -106,9 +111,12 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void upload() {
-        Bitmap bm = BitmapFactory.decodeFile(imgPath);
+       // Bitmap bm = BitmapFactory.decodeFile(imgPath);
+        Bitmap bm= ((BitmapDrawable) mImageView.getDrawable()).getBitmap();
         ByteArrayOutputStream bao = new ByteArrayOutputStream();
         bm.compress(Bitmap.CompressFormat.JPEG, 50, bao);
+
+
         byte[] ba = bao.toByteArray();
         ba1 = Base64.encodeToString(ba, Base64.NO_WRAP);
 
