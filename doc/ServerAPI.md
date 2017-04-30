@@ -35,7 +35,7 @@
 ```
 
 ## API: FaceRecongnition Matching Result CRUD APIs
-1. GET /faces/results?number=5
+1. GET /faces/results?number=4
 ```
     Response
     {
