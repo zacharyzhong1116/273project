@@ -1,4 +1,8 @@
 {
-  "pi": 3.14,
-  "e": 2.718
+  "httpMethod": "GET",
+  "queryStringParameters": {
+      "TableName": "Image",
+      "Attribute": "ImageName",
+      "Value": "Henry16"
+  }
 }

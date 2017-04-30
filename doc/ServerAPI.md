@@ -16,7 +16,11 @@
 ```
     Response
     {
-        “Content”: “sdfsdfdagfgfdgjsgjkngergnoengodnfgjfdngkjnsjgnfkngjkdngjfn"
+        "body": "{\"Content\": \"dsdfdfgsgsdgfdsgdfgfgergergergfdgdfgrgtergdfkmdlgmrltjgjdfkmglksjgjgsk\", \"ImageName\": \"Henry16\"}",
+        "headers": {
+            "Content-Type": "application/json"
+        },
+        "statusCode": "200"
     }
 ```
 3. DELETE  /images/{image-name}

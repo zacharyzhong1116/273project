@@ -1,9 +1,9 @@
 region: us-east-1
 
-function_name: my_lambda_function
+function_name: ImageDynamoDB_Lambda
 handler: service.lambda_handler
 role: FaceRecongnition
-description: My first lambda function
+description: Lambda function to update Stream in DynamoDB
 
 # if access key and secret are left blank, boto will use the credentials
 # defined in the [default] section of ~/.aws/credentials.
