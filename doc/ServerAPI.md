@@ -1,16 +1,25 @@
 # Face Recongnition System (API)
 ## API: FaceRecongnition Dynamo Image CRUD APIs
+0. URL: https://zc2oz2npjg.execute-api.us-east-1.amazonaws.com/ImageTable
 1. POST /images
 ```
     Request
     {
-        “ImageName": “Henry17”,
-        “size”: 600,
-        “Content”: “sdfsdfdagfgfdgjsgjkngergnoengodnfgjfdngkjnsjgnfkngjkdngjfn"
+        "body": {
+            "TableName": "Image",
+            "ImageName": "Henry17",
+            "Content": "He is going hiking"
+        }
     }
     
     Response
-    200 OK
+    {
+        "body": "{\"ResponseMetadata\": {\"RetryAttempts\": 0, \"HTTPStatusCode\": 200, \"RequestId\": \"7EQ4R6TIG8B50854TPTF5N3H4RVV4KQNSO5AEMVJF66Q9ASUAAJG\", \"HTTPHeaders\": {\"x-amzn-requestid\": \"7EQ4R6TIG8B50854TPTF5N3H4RVV4KQNSO5AEMVJF66Q9ASUAAJG\", \"content-length\": \"2\", \"server\": \"Server\", \"connection\": \"keep-alive\", \"x-amz-crc32\": \"2745614147\", \"date\": \"Mon, 01 May 2017 19:26:30 GMT\", \"content-type\": \"application/x-amz-json-1.0\"}}}",
+        "headers": {
+            "Content-Type": "application/json"
+        },
+        "statusCode": "200"
+    }
 ```
 2. GET /images/{image-name}
 ```
@@ -26,15 +35,12 @@
 3. DELETE  /images/{image-name}
 ```
     Response
-    200OK
-```
-4. PUT /images/{image-name}
-```
-    Request
     {
-        “ImageName": “Henry17”,
-        “size”: 600,
-        “Content”: “ABC"
+        "body": "{\"ResponseMetadata\": {\"RetryAttempts\": 0, \"HTTPStatusCode\": 200, \"RequestId\": \"49RT1TUOC6CCO8DNSH5JOS9BEJVV4KQNSO5AEMVJF66Q9ASUAAJG\", \"HTTPHeaders\": {\"x-amzn-requestid\": \"49RT1TUOC6CCO8DNSH5JOS9BEJVV4KQNSO5AEMVJF66Q9ASUAAJG\", \"content-length\": \"2\", \"server\": \"Server\", \"connection\": \"keep-alive\", \"x-amz-crc32\": \"2745614147\", \"date\": \"Mon, 01 May 2017 19:28:47 GMT\", \"content-type\": \"application/x-amz-json-1.0\"}}}",
+        "headers": {
+            "Content-Type": "application/json"
+        },
+        "statusCode": "200"
     }
 ```
 

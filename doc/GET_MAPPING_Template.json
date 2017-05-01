@@ -3,6 +3,6 @@
   "queryStringParameters": {
       "TableName": "Image",
       "Attribute": "ImageName",
-      "Value": "Henry16"
+      "Value": "$input.params('image-name')"
   }
 }

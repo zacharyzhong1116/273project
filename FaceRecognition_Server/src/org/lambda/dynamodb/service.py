@@ -56,7 +56,29 @@ def lambda_handler(event, context):
             dynamo = boto3.resource('dynamodb').Table(payload['TableName'])
             response = dynamo.scan(FilterExpression=Attr(payload['Attribute']).eq(payload['Value']))
             items = response['Items']
-            print(items)
+            # print(items)
             return respond(None, items[0])
+        elif operation == 'POST':
+            payload = event['body']
+            # print(payload)
+            dynamo = boto3.resource('dynamodb').Table(payload['TableName'])
+            response = dynamo.put_item(
+                Item={
+                    'ImageName': payload['ImageName'],
+                    'Content': payload['Content'],
+                }
+            )
+            return respond(None, response);
+        elif operation == "DELETE":
+            payload = event['body']
+            dynamo = boto3.resource('dynamodb').Table(payload['TableName'])
+            response = dynamo.delete_item(
+                Key={
+                    'ImageName': payload['ImageName']
+                }
+            )
+            return respond(None, response);
+        else:
+            return respond(ValueError('Unsupported PUT "{}"'.format(operation)));
     else:
         return respond(ValueError('Unsupported method "{}"'.format(operation)))
