@@ -1,11 +1,9 @@
 import tensorflow as tf
 import detect_face
-import numpy as np
 import cv2
 import matplotlib as mil
 mil.use('TKAgg')
 import matplotlib.pyplot as plt
-import nn4 as network
 import cv2.face
 
 
