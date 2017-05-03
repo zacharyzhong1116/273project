@@ -1,0 +1,4 @@
+cv2 (extra face lib)
+numpy
+tensorflow
+matplotlib
