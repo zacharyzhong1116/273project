@@ -1,0 +1,17 @@
+{
+  "httpMethod": "POST",
+  "Records": [
+    {
+      "s3": {
+        "object": {
+          "key": "Henry17",
+          "data": "How old are you?"
+        },
+        "bucket": {
+          "arn": "arn:aws:s3:::images273",
+          "name": "images273"
+        }
+      }
+    }
+  ]
+}

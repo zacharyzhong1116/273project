@@ -1,0 +1,10 @@
+{
+    "httpMethod": "POST",
+    "tableName": "ImageResult",
+    "bucketName": "images273",
+    "body": {
+        "ImageName": "Henry30.jpg",
+        "Content": "sdfdfdgjdfghgfh",
+        "Count": 1
+    }
+}

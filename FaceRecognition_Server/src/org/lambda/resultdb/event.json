@@ -1,0 +1,10 @@
+{
+    "httpMethod": "POST",
+    "tableName": "Image",
+    "resultTableName": "Result",
+    "body": {
+        "ImageName": "Henry30",
+        "Content": "sdfdfdgjdfghgfh",
+        "Result": 1
+    }
+}

@@ -3,6 +3,8 @@ import mtcnn
 import numpy as np
 import cv2
 
+# model: images in S3
+# pair: images upload later
 def match_face(model, pair):
     global_conf = None
     nparr_model = np.fromstring(model, np.uint8)
@@ -38,3 +40,4 @@ def match_face(model, pair):
         global_conf = conf
 
     return global_conf
+
