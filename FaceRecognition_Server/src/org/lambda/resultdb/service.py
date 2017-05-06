@@ -1,5 +1,5 @@
 from __future__ import print_function
-from org.face.match.match_face import match_face
+# from org.face.match.match_face import match_face
 # from boto3.dynamodb.conditions import Key, Attr
 
 import boto3
