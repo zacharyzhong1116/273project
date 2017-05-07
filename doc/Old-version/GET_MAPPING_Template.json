@@ -1,0 +1,8 @@
+{
+  "httpMethod": "GET",
+  "queryStringParameters": {
+      "TableName": "Image",
+      "Attribute": "ImageName",
+      "Value": "$input.params('image-name')"
+  }
+}

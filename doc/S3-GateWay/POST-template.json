@@ -1,0 +1,14 @@
+{
+  "httpMethod": "POST",
+  "Records": [
+    {
+      "s3": {
+        "object": $input.json('$.object'),
+        "bucket": {
+          "arn": "arn:aws:s3:::images273",
+          "name": "images273"
+        }
+      }
+    }
+  ]
+}

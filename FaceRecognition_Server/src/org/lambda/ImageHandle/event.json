@@ -1,10 +1,11 @@
 {
-  "httpMethod": "DELETE",
+  "httpMethod": "POST",
   "Records": [
     {
       "s3": {
         "object": {
-          "key": "Henry16.jpg"
+          "key": "Henry19.jpg",
+          "data": "What about you?"
         },
         "bucket": {
           "arn": "arn:aws:s3:::images273",

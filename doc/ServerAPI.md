@@ -1,27 +1,26 @@
 # Face Recongnition System (API)
 ## API: FaceRecongnition Dynamo Image CRUD APIs
-0. URL: https://zc2oz2npjg.execute-api.us-east-1.amazonaws.com/ImageTable
-1. POST /images
+0. basicURL = https://zc2oz2npjg.execute-api.us-east-1.amazonaws.com/ImageTable
+1. POST {basicURL}/images
 ```
     Request
     {
-        "body": {
-            "TableName": "Image",
-            "ImageName": "Henry17",
-            "Content": "He is going hiking"
-        }dstraat
+        "object": {
+            "key": "Henry19.jpg",
+            "data": "What about you?"
+        }
     }
     
     Response
     {
-        "body": "{\"ResponseMetadata\": {\"RetryAttempts\": 0, \"HTTPStatusCode\": 200, \"RequestId\": \"7EQ4R6TIG8B50854TPTF5N3H4RVV4KQNSO5AEMVJF66Q9ASUAAJG\", \"HTTPHeaders\": {\"x-amzn-requestid\": \"7EQ4R6TIG8B50854TPTF5N3H4RVV4KQNSO5AEMVJF66Q9ASUAAJG\", \"content-length\": \"2\", \"server\": \"Server\", \"connection\": \"keep-alive\", \"x-amz-crc32\": \"2745614147\", \"date\": \"Mon, 01 May 2017 19:26:30 GMT\", \"content-type\": \"application/x-amz-json-1.0\"}}}",
+        "body": "{\"ImageName\": \"Henry19.jpg\", \"Result\": \"POST Success\"}",
         "headers": {
             "Content-Type": "application/json"
         },
         "statusCode": "200"
     }
 ```
-2. GET /images/{image-name}
+2. GET {basicURL}/images/{image-name}
 ```
     Response
     {
@@ -32,18 +31,28 @@
         "statusCode": "200"
     }
 ```
-3. DELETE  /images/{image-name}
+3. DELETE  {basicURL}/images/{image-name}
 ```
     Response
     {
-        "body": "{\"ResponseMetadata\": {\"RetryAttempts\": 0, \"HTTPStatusCode\": 200, \"RequestId\": \"49RT1TUOC6CCO8DNSH5JOS9BEJVV4KQNSO5AEMVJF66Q9ASUAAJG\", \"HTTPHeaders\": {\"x-amzn-requestid\": \"49RT1TUOC6CCO8DNSH5JOS9BEJVV4KQNSO5AEMVJF66Q9ASUAAJG\", \"content-length\": \"2\", \"server\": \"Server\", \"connection\": \"keep-alive\", \"x-amz-crc32\": \"2745614147\", \"date\": \"Mon, 01 May 2017 19:28:47 GMT\", \"content-type\": \"application/x-amz-json-1.0\"}}}",
+        "body": "{\"Result\": \"DELETE all the objects in the bucket\"}",
         "headers": {
             "Content-Type": "application/json"
         },
         "statusCode": "200"
     }
 ```
-
+4. DELETE  {basicURL}/images
+```
+    Response
+    {
+        "body": "{\"Result\": \"DELETE all the objects in the bucket\"}",
+        "headers": {
+            "Content-Type": "application/json"
+        },
+        "statusCode": "200"
+}
+```
 ## API: FaceRecongnition Matching Result CRUD APIs
 1. GET /faces/results?number=4
 ```

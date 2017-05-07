@@ -1,4 +1,0 @@
-{
-    "httpMethod": "POST",
-    "body" : $input.json('$.body')
-}

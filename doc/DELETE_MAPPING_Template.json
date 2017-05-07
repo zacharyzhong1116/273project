@@ -1,7 +1,0 @@
-{
-    "httpMethod": "DELETE",
-    "body": {
-        "TableName": "Image",
-        "ImageName": "$input.params('image-name')"
-    }
-}
