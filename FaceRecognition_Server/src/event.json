@@ -1,10 +1,4 @@
 {
-    "httpMethod": "POST",
-    "tableName": "ImageResult",
-    "bucketName": "images273",
-    "body": {
-        "ImageName": "Henry30.jpg",
-        "Content": "How old are you?",
-        "Count": 1
-    }
+    "httpMethod": "DELETE",
+    "tableName": "ImageResult"
 }
