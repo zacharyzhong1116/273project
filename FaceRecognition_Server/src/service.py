@@ -107,14 +107,12 @@ def lambda_handler(event, context):
             # return the response.
             return respond(None, result)
         elif operation == "DELETE":
-            payload = event['body']
-
             # get the Count(*) from table "Result".
             dynamoResult = boto3.resource('dynamodb').Table(event['tableName'])
             response = dynamoResult.scan()
             items = response['Items']
             responseList = []
-            i = 0
+
             # Compare with all the pictures in the database.
             for item in items:
                 imageName2 = item['ImageName']
@@ -124,8 +122,9 @@ def lambda_handler(event, context):
                         'ImageName': imageName2
                     }
                 )
-                responseList[i] = response
-                i = i + 1
+                response = {"Delete": imageName2, "Status": "Success"}
+                responseList.append(response)
+
             return respond(None, responseList);
         else:
             return respond(ValueError('Unsupported PUT and GET "{}"'.format(operation)));
