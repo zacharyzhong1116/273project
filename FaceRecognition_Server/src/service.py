@@ -1,15 +1,14 @@
 from __future__ import print_function
+from decimal import Decimal
 # from org.face.match.match_face import match_face
 # from boto3.dynamodb.conditions import Key, Attr
-import match_face
+import base64
+# import match_face
 
 import boto3
 import json
 
-
-
 print('Loading function')
-
 
 def respond(err, res=None):
     return {
@@ -20,6 +19,14 @@ def respond(err, res=None):
         },
     }
 
+
+def compareTest(content2, content1):
+    print("content2 = " + content2)
+    print("content1 = " + content1)
+    if content1 == content2:
+        return 0
+    else:
+        return 1
 
 def lambda_handler(event, context):
     '''Demonstrates a simple HTTP endpoint using API Gateway. You have full
@@ -41,18 +48,6 @@ def lambda_handler(event, context):
     }
 
     operation = event['httpMethod']
-    # if operation in operations:
-    #     payload = event['queryStringParameters'] if operation == 'GET' else json.loads(event['body'])
-    #     dynamo = boto3.resource('dynamodb').Table(payload['TableName'])
-    #     response = dynamo.scan(FilterExpression=Attr(payload['Attribute']).eq(payload['Value']))
-    #     items = response['Items']
-    #     # print(items[0][payload['Attribute']])
-    #     result = {'ImageName': items[0]['ImageName'], 'Content': items[0]['Content'], 'Similarity': items[0]['Similarity']};
-    #     print(result)
-    #     # operations[operation](dynamo, payload)
-    #     return respond(None, list(result))
-    # else:
-    #     return respond(ValueError('Unsupported method "{}"'.format(operation)))
 
     if operation in operations:
         if operation == 'POST':
@@ -64,12 +59,15 @@ def lambda_handler(event, context):
             exist = False
 
             # The content of the first picture
-            content1 = payload['Content']
+            content = payload['Content']
+
+            # Only for testing. encode the content before comparing.
+            content1 = base64.b64encode(content)
             imageName1 = payload['ImageName']
 
             # Get all the objects from bucket in S3
             s3 = boto3.resource('s3')
-            bucketName = payload['bucketName']
+            bucketName = event['bucketName']
             bucket = s3.Bucket(bucketName)
             for obj in bucket.objects.all():
                 # Get all the content in these objects and compare with the input picture
@@ -78,32 +76,24 @@ def lambda_handler(event, context):
                 content2 = obj.get()['Body'].read()
                 print("Comparing " + imageName2 + " with " + imageName1)
                 # similarity = match_face(content2, content1)
-                similarity = match_face.compareTest(content2, content1)
-                diction[imageName2] = similarity
+                # Decimal('1') isn't json serizable, so I use this method to change similarity to str and json.dumps it.
+                similarity = compareTest(content2, content1)
+                similarity_json = json.dumps(str(Decimal(similarity)))
+                print("similarity = " + str(similarity))
+                # similarity = 0
+                diction[imageName2] = similarity_json
                 if similarity == 0:
                     exist = True
-
-            # Batch write all the result to DynamoDB table: dynamo
-
-            # Get all the items from table "Image"
-            # response = dynamo.scan()
-            # items = response['Items']
-            # Compare with all the pictures in the database.
-            # for item in items:
-            #     imageName2 = item['ImageName']
-            #     content2 = item['Content']
-            #     print("Comparing" + imageName2 + " with " + imageName1)
-            #     similarity = compareImages(content1, content2)
-            #     diction[imageName2] = similarity
+                print("exist = " + str(exist))
 
             # Batch write all the result in the dictionary to DynamoDB table "Result"
             dynamoResult = boto3.resource('dynamodb').Table(event['tableName'])
             with dynamoResult.batch_writer() as batch:
-                for imageName, similarity in diction.iteritems():
+                for imageName, similarity_json in diction.iteritems():
                     batch.put_item(
                         Item={
                             'ImageName': imageName,
-                            'Similarity': similarity
+                            'Similarity': similarity_json
                         }
                     )
 
@@ -113,7 +103,7 @@ def lambda_handler(event, context):
             )
             items = response['Items']
             print(items[0])
-            result = {"Exist": True, "Response": items[0]}
+            result = {"Exist": exist, "Response": items[0]}
             # return the response.
             return respond(None, result)
         elif operation == "DELETE":

@@ -41,3 +41,8 @@ def match_face(model, pair):
 
     return global_conf
 
+def compareTest(content2, content1):
+    if content1 == content2:
+        return 0
+    else:
+        return 1
