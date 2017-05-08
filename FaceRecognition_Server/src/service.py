@@ -1,12 +1,11 @@
 from __future__ import print_function
+from boto3.dynamodb.conditions import Key, Attr
 from decimal import Decimal
-# from org.face.match.match_face import match_face
-# from boto3.dynamodb.conditions import Key, Attr
-import base64
-# import match_face
 
 import boto3
 import json
+
+
 
 print('Loading function')
 
@@ -27,6 +26,24 @@ def compareTest(content2, content1):
         return 0
     else:
         return 1
+
+def compareImages(content1, imageName2):
+    client = boto3.client('rekognition')
+    response = client.compare_faces(
+        SimilarityThreshold=90,
+        SourceImage={
+            'Bytes': content1
+        },
+        TargetImage={
+            'S3Object': {
+                'Bucket': 'images273',
+                'Name': imageName2,
+            },
+        },
+    )
+    print("compareImages response = "+ str(response))
+    return response
+
 
 def lambda_handler(event, context):
     '''Demonstrates a simple HTTP endpoint using API Gateway. You have full
@@ -62,9 +79,17 @@ def lambda_handler(event, context):
             content = payload['Content']
 
             # Only for testing. encode the content before comparing.
-            content1 = base64.b64encode(content)
+            # content1 = base64.b64encode(content)
+            content1 = content
             imageName1 = payload['ImageName']
 
+            # just for testing
+            if content == "":
+                f = open('test1.jpg', 'rb')
+                with f as myfile:
+                    content1 = myfile.read()
+                f.close()
+            # print ("content1 = " + str(content1))
             # Get all the objects from bucket in S3
             s3 = boto3.resource('s3')
             bucketName = event['bucketName']
@@ -73,39 +98,57 @@ def lambda_handler(event, context):
                 # Get all the content in these objects and compare with the input picture
                 imageName2 = obj.key
                 # Is content2 encoding with base64? We need to test.
-                content2 = obj.get()['Body'].read()
-                print("Comparing " + imageName2 + " with " + imageName1)
-                # similarity = match_face(content2, content1)
+                # content2 = obj.get()['Body'].read()
+                print("Comparing " + imageName1 + " with " + imageName2)
                 # Decimal('1') isn't json serizable, so I use this method to change similarity to str and json.dumps it.
-                similarity = compareTest(content2, content1)
+                try:
+                    result = compareImages(content1, imageName2)
+                except Exception:
+                    continue
+                similarity = ""
+                if len(result['FaceMatches']) != 0:
+                    similarity = result['FaceMatches'][0]['Similarity']
+                else:
+                    continue
+                # If we don't use similarity_json, Decimal('91') in the response['items'][0] can not be json.dumps()
                 similarity_json = json.dumps(str(Decimal(similarity)))
                 print("similarity = " + str(similarity))
                 # similarity = 0
-                diction[imageName2] = similarity_json
-                if similarity == 0:
+                diction[imageName2] = similarity
+                if similarity > 90:
                     exist = True
                 print("exist = " + str(exist))
 
             # Batch write all the result in the dictionary to DynamoDB table "Result"
             dynamoResult = boto3.resource('dynamodb').Table(event['tableName'])
             with dynamoResult.batch_writer() as batch:
-                for imageName, similarity_json in diction.iteritems():
+                for imageName, similarity in diction.iteritems():
                     batch.put_item(
                         Item={
                             'ImageName': imageName,
-                            'Similarity': similarity_json
+                            'Similarity': int(similarity)
                         }
                     )
 
             # Quary only required number of items with ascend similarity.
             response = dynamoResult.scan(
-                Limit=returnNumber
+                IndexName='ImageName-Similarity-index',
+                Limit=returnNumber,
+                FilterExpression=Attr('Similarity').gte(90)
             )
             items = response['Items']
-            print(items[0])
-            result = {"Exist": exist, "Response": items[0]}
-            # return the response.
-            return respond(None, result)
+            # convert Decimal('91') to 91 in response
+            for item in items:
+                item['Similarity'] = int(item['Similarity'])
+
+            # print("response['Items'][0] = " + items[0])
+            if len(items) != 0:
+                print("items = " + str(items))
+                result = {"Exist": exist, "Response": items}
+                return respond(None, result)
+            else:
+                result = {"Exist": exist, "Response": "No matching images"}
+                return respond(None, result)
         elif operation == "DELETE":
             # get the Count(*) from table "Result".
             dynamoResult = boto3.resource('dynamodb').Table(event['tableName'])

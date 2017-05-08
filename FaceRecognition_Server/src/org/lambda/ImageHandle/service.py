@@ -51,26 +51,25 @@ def lambda_handler(event, context):
 
             obj = s3.Object(bucket, key)
             content = obj.get()['Body'].read()
-
+            contentString = base64.b64encode(content)
             # Since we don't do integration test, our jpg file content is binary
             # contentString = base64.b64encode(content)
-            result = {"ImageName": key, "Content": content}
+            result = {"ImageName": key, "Content": contentString}
             return respond(None, result)
         elif operation == 'POST':
             bucket = event['Records'][0]['s3']['bucket']['name']
             key = urllib.unquote_plus(event['Records'][0]['s3']['object']['key'].encode('utf8'))
-            data = base64.b64encode(event['Records'][0]['s3']['object']['data'])
+            data = event['Records'][0]['s3']['object']['data']
             obj = s3.Object(bucket, key)
             # f = open('test1.jpg', 'rb')
             # with f as myfile:
-            #     dataRaw = myfile.read()
+            #     data = myfile.read()
             # f.close()
-            # data = base64.b64encode(dataRaw)
-
+            dataString = base64.b64encode(data)
             # Here we need to use Body=data since the arguement is a json object
             obj.put(Body=data);
             print("Object is " + str(obj))
-            result = {"ImageName": key, "Result": "POST Success"}
+            result = {"ImageName": key, "Result": "POST Success", "DataStream": dataString}
             return respond(None, result);
         elif operation == "DELETE":
             bucketName = event['Records'][0]['s3']['bucket']['name']
