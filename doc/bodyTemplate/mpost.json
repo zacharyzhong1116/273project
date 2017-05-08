@@ -1,0 +1,5 @@
+{
+    "TableName": "menu",
+    "httpMethod": "POST",
+    "body" : $input.json('$.body')
+}
