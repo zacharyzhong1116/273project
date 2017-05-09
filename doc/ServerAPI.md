@@ -64,11 +64,16 @@
         }
     }
     
-    Response
+    Response Success
     {
         'body': '{"Exist": true, "Response": [{"ImageName": "Henry21.jpg", "Similarity": 100}]}', 
         'headers': {'Content-Type': 'application/json'}, 
-        'statusCode': '200'
+    }
+    
+    Response Failed
+    {
+        "body": "Content can not be decoded by base64.",
+        "headers": {"Content-Type":"application/json"}
     }
 ```
 2. DELETE {basicURL}/results

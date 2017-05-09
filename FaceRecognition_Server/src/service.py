@@ -71,12 +71,14 @@ def lambda_handler(event, context):
             payload = event['body']
 
             # How many pictures the customer want
-            returnNumber = payload['Count']
+            returnNumber = event['count']
             diction = {}
             exist = False
 
             # The content of the first picture
             content = payload['Content']
+            # if content != "":
+            #     content = base64.b64encode(content)
             # content1 = content
             imageName1 = payload['ImageName']
 
@@ -87,7 +89,11 @@ def lambda_handler(event, context):
                     content1 = myfile.read()
                 f.close()
             else:
-                content1 = base64.b64decode(content)
+                try:
+                    content1 = base64.b64decode(content)
+                except Exception:
+                    return respond(ValueError('Content can not be decoded by base64.'.format(operation)));
+
             # print ("content1 = " + str(content1))
             # Get all the objects from bucket in S3
             s3 = boto3.resource('s3')
