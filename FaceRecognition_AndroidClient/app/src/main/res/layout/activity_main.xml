@@ -31,9 +31,41 @@
     <android.support.v7.widget.AppCompatImageView
         android:layout_width="100dp"
         android:layout_height="200dp"
-        android:layout_below="@+id/imgView2"
-        android:layout_alignParentRight="true"
-        android:id="@+id/imgView"/>
+        android:id="@+id/imgView"
+        android:layout_toRightOf="@+id/imgView2"
+        android:layout_alignRight="@+id/button2"
+        android:layout_alignEnd="@+id/button2"
+        android:layout_below="@+id/btnGallery" />
+
+    <Button
+        android:id="@+id/btnGallery"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="gallery"
+        android:layout_alignParentTop="true"
+        android:layout_toRightOf="@+id/btnUpload"
+        android:layout_toEndOf="@+id/btnUpload" />
+
+    <TextView
+        android:id="@+id/txtRes"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignLeft="@+id/imgView"
+        android:layout_alignStart="@+id/imgView"
+        android:layout_below="@+id/imgView"
+        android:layout_marginLeft="30dp"
+        android:layout_marginStart="30dp"
+        android:layout_marginTop="16dp"
+        android:text="result" />
+
+    <Button
+        android:id="@+id/btnGet"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="get"
+        android:layout_alignParentTop="true"
+        android:layout_toRightOf="@+id/btnGallery"
+        android:layout_toEndOf="@+id/btnGallery" />
 
 
 </RelativeLayout>
