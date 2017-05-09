@@ -4,8 +4,8 @@
     {
       "s3": {
         "object": {
-          "key": "Henry19.jpg",
-          "data": "What about you?"
+          "key": "Henry20.jpg",
+          "data": ""
         },
         "bucket": {
           "arn": "arn:aws:s3:::images273",

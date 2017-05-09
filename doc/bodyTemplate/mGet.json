@@ -1,0 +1,8 @@
+{
+  "httpMethod": "GET",
+  "queryStringParameters": {
+      "TableName": "menu",
+      "Attribute": "menu_id",
+      "Value": "$input.params('menu-id')"
+  }
+}

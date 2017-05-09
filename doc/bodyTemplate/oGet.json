@@ -1,0 +1,8 @@
+{
+  "httpMethod": "GET",
+  "queryStringParameters": {
+      "TableName": "order",
+      "Attribute": "order_id",
+      "Value": "$input.params('order-id')"
+  }
+}
