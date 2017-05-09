@@ -1,11 +1,11 @@
 from __future__ import print_function
+
 from boto3.dynamodb.conditions import Key, Attr
 from decimal import Decimal
 
+import base64
 import boto3
 import json
-
-
 
 print('Loading function')
 
@@ -77,10 +77,7 @@ def lambda_handler(event, context):
 
             # The content of the first picture
             content = payload['Content']
-
-            # Only for testing. encode the content before comparing.
-            # content1 = base64.b64encode(content)
-            content1 = content
+            # content1 = content
             imageName1 = payload['ImageName']
 
             # just for testing
@@ -89,6 +86,8 @@ def lambda_handler(event, context):
                 with f as myfile:
                     content1 = myfile.read()
                 f.close()
+            else:
+                content1 = base64.b64decode(content)
             # print ("content1 = " + str(content1))
             # Get all the objects from bucket in S3
             s3 = boto3.resource('s3')
@@ -159,10 +158,12 @@ def lambda_handler(event, context):
             # Compare with all the pictures in the database.
             for item in items:
                 imageName2 = item['ImageName']
+                similarity2 = item['Similarity']
                 print("Deleting " + imageName2 + " from table: " + event['tableName'])
                 response = dynamoResult.delete_item(
                     Key={
-                        'ImageName': imageName2
+                        'ImageName': imageName2,
+                        'Similarity': similarity2
                     }
                 )
                 response = {"Delete": imageName2, "Status": "Success"}
