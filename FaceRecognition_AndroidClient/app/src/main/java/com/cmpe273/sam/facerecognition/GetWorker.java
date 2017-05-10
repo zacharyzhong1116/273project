@@ -49,4 +49,10 @@ public class GetWorker extends AsyncTask{
         }
         return null;
     }
+
+    @Override
+    protected void onPostExecute(Object o) {
+        super.onPostExecute(o);
+
+    }
 }

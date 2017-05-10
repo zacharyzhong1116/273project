@@ -35,6 +35,7 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.UnsupportedEncodingException;
@@ -317,11 +318,12 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
             try{
                     Log.d("conn" ,"connection start");
-                    URL url = new URL("https://zc2oz2npjg.execute-api.us-east-1.amazonaws.com/ImageTable/images");
+//                    URL url = new URL("https://zc2oz2npjg.execute-api.us-east-1.amazonaws.com/ImageTable/images");
+                URL url = new URL("https://zc2oz2npjg.execute-api.us-east-1.amazonaws.com/ImageTable/results/1");
                     HttpURLConnection conn = (HttpURLConnection) url.openConnection();
                     conn.setRequestProperty("Content-Type", "application/json; charset=UTF8"); // here you are setting the `Content-Type` for the data you are sending which is `application/json`
-                    conn.setReadTimeout(100000);
-                    conn.setConnectTimeout(150000);
+                    conn.setReadTimeout(10000);
+                    conn.setConnectTimeout(15000);
                     conn.setRequestMethod("POST");
                     conn.setDoInput(true);
                     conn.setDoOutput(true);
@@ -347,21 +349,34 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
                 JSONObject req = new JSONObject();
                 JSONObject object = new JSONObject();
-                object.put("key", "testwenjin.jpg");
-                object.put("data", img_upload);
+//                object.put("key", "testwenjin.jpg");
+//                object.put("data", img_upload);
+                object.put("ImageName", "testwenjin.jpg");
+                object.put("Content", img_upload);
                 System.out.println("image to upload size: "+img_upload.length());
-                req.put("object", object);
+//                req.put("object", object);
+                req.put("body", object);
                 DataOutputStream wr = new DataOutputStream(conn.getOutputStream());
                 wr.writeBytes(req.toString());
                 wr.flush();
                 wr.close();
 
+                InputStream in = conn.getInputStream();
+                InputStreamReader isw = new InputStreamReader(in);
 
-                Log.d("response", ""+conn.getResponseMessage());
+                int data = isw.read();
+                while (data != -1) {
+                    char current = (char) data;
+                    data = isw.read();
+                    System.out.print(current);
+                }
+//                Log.d("response", ""+conn.getResponseCode()+", "+conn.getResponseMessage());
+                conn.disconnect();
 
 //                conn.connect();
             }catch (Exception e){
                 e.printStackTrace();
+            }finally {
             }
             return "Success";
         }
