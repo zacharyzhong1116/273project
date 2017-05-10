@@ -65,11 +65,11 @@ def lambda_handler(event, context):
             # with f as myfile:
             #     data = myfile.read()
             # f.close()
-            dataString = base64.b64encode(data)
+            dataAray = base64.b64decode(data)
             # Here we need to use Body=data since the arguement is a json object
-            obj.put(Body=data);
+            obj.put(Body=dataAray);
             print("Object is " + str(obj))
-            result = {"ImageName": key, "Result": "POST Success", "DataStream": dataString}
+            result = {"ImageName": key, "Result": "POST Success", "DataStream": base64.b64encode(dataAray)}
             return respond(None, result);
         elif operation == "DELETE":
             bucketName = event['Records'][0]['s3']['bucket']['name']

@@ -2,9 +2,9 @@
     "httpMethod": "POST",
     "tableName": "ImageResult",
     "bucketName": "images273",
+    "count": 3,
     "body": {
         "ImageName": "Henry30.jpg",
-        "Content": "",
-        "Count": 2
+        "Content": ""
     }
 }
