@@ -22,20 +22,11 @@
         android:id="@+id/btnUpload" />
 
     <android.support.v7.widget.AppCompatImageView
-        android:layout_width="200dp"
+        android:layout_width="300dp"
         android:layout_height="400dp"
-       android:layout_below="@+id/btnJump"
-        android:src="@mipmap/ic_launcher"
-        android:id="@+id/imgView2"/>
-
-    <android.support.v7.widget.AppCompatImageView
-        android:layout_width="100dp"
-        android:layout_height="200dp"
         android:id="@+id/imgView"
-        android:layout_toRightOf="@+id/imgView2"
-        android:layout_alignRight="@+id/button2"
-        android:layout_alignEnd="@+id/button2"
-        android:layout_below="@+id/btnGallery" />
+        android:layout_below="@+id/btnGallery"
+        android:rotation="270"/>
 
     <Button
         android:id="@+id/btnGallery"
@@ -45,9 +36,8 @@
         android:layout_alignParentTop="true"
         android:layout_toRightOf="@+id/btnUpload"
         android:layout_toEndOf="@+id/btnUpload" />
-
     <TextView
-        android:id="@+id/txtRes"
+        android:id="@+id/txtRes1"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignLeft="@+id/imgView"
@@ -56,13 +46,26 @@
         android:layout_marginLeft="30dp"
         android:layout_marginStart="30dp"
         android:layout_marginTop="16dp"
-        android:text="result" />
+        android:textSize="20dp"
+        android:text="Similarity Percentage :" />
 
-    <Button
-        android:id="@+id/btnGet"
+    <TextView
+        android:id="@+id/txtRes"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="get"
+        android:layout_toRightOf="@+id/txtRes1"
+        android:layout_below="@+id/imgView"
+        android:layout_marginLeft="30dp"
+        android:layout_marginStart="30dp"
+        android:layout_marginTop="16dp"
+        android:textSize="20dp"
+        android:text="" />
+
+    <Button
+        android:id="@+id/btnPostModel"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="model"
         android:layout_alignParentTop="true"
         android:layout_toRightOf="@+id/btnGallery"
         android:layout_toEndOf="@+id/btnGallery" />

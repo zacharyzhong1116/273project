@@ -3,17 +3,15 @@ package com.cmpe273.sam.facerecognition;
 import android.Manifest;
 import android.app.Activity;
 import android.app.ProgressDialog;
-import android.content.ContentValues;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.graphics.drawable.BitmapDrawable;
+import android.graphics.Matrix;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Environment;
-import android.os.Handler;
 import android.provider.MediaStore;
 import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
@@ -23,11 +21,14 @@ import android.util.Base64;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.TextView;
 import android.widget.Toast;
 
+import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.io.BufferedWriter;
+import java.io.BufferedInputStream;
+import java.io.BufferedReader;
 import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
 import java.io.File;
@@ -36,8 +37,6 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.io.OutputStream;
-import java.io.OutputStreamWriter;
 import java.io.UnsupportedEncodingException;
 import java.net.HttpURLConnection;
 import java.net.URL;
@@ -45,7 +44,7 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
 
-public class MainActivity extends AppCompatActivity implements View.OnClickListener  {
+public class MainActivity extends AppCompatActivity implements View.OnClickListener, AsyncResponse  {
 
     static final int REQUEST_IMAGE_CAPTURE = 100;
     static final int REQUEST_IMAGE_CHOOSE = 100;
@@ -56,25 +55,32 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private String imgPath;
     private byte[] ba;
     Button btnJumpToCam;
-    Button btnUpload, btnGallery, btnGet;
+    Button btnUpload, btnGallery, btnPostModel;
+    TextView txtRes;
     private static final int SELECT_PICTURE = 100;
     private static final String TAG = "MainActivity";
     AppCompatImageView mImageView;
     AppCompatImageView mImageView2;
     private String img_upload;
     DBHelper dbHelper;
+    String returnFromServer;
+    RecognitionWorker worker;
+
+    public AsyncResponse returnAsycnRes() {
+        return this;
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         mImageView = (AppCompatImageView) findViewById(R.id.imgView);
-        mImageView2 = (AppCompatImageView) findViewById(R.id.imgView2);
 
+        txtRes = (TextView)findViewById(R.id.txtRes);
         btnJumpToCam = (Button) findViewById(R.id.btnJump);
         btnUpload = (Button) findViewById(R.id.btnUpload);
         btnGallery = (Button) findViewById(R.id.btnGallery);
-        btnGet = (Button) findViewById(R.id.btnGet);
+        btnPostModel = (Button) findViewById(R.id.btnPostModel);
         dbHelper = new DBHelper(this);
 
         verifyStoragePermissions(this);
@@ -85,15 +91,16 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 jumpToCamera();
             }
         });
-
       btnUpload.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
 //                upload();
-                RecognitionWorker worker = new RecognitionWorker();
+                worker = new RecognitionWorker();
                 worker.execute();
+                worker.delegate = returnAsycnRes();
             }
         });
+
 
         btnGallery.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -103,11 +110,11 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             }
         });
 
-        btnGet.setOnClickListener(new View.OnClickListener() {
+        btnPostModel.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                GetWorker getWorker = new GetWorker();
-                getWorker.execute();
+                PostWorker getWorker = new PostWorker();
+                getWorker.execute(imgPath);
             }
         });
     }
@@ -164,12 +171,30 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     }
 
 
+    public static Bitmap rotateImage(Bitmap source, float angle) {
+        Matrix matrix = new Matrix();
+        matrix.postRotate(angle);
+        return Bitmap.createBitmap(source, 0, 0, source.getWidth(), source.getHeight(),
+                matrix, true);
+    }
+
+
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (requestCode == REQUEST_IMAGE_CAPTURE && resultCode == RESULT_OK) {
                 selectedImage = data.getData();
+
+            imgPath = getRealPathFromURI(selectedImage);
             if (null != selectedImage) {
-                mImageView.setImageURI(selectedImage);
+                try {
+                    Bitmap bitmap = MediaStore.Images.Media.getBitmap(this.getContentResolver(), selectedImage);
+//                    mImageView.setImageMatrix(matrix);
+                    mImageView.setImageBitmap(bitmap);
+
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+
             }
 
         }
@@ -179,7 +204,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             Bitmap bitmap = null;
             try {
                 bitmap = MediaStore.Images.Media.getBitmap(this.getContentResolver(), selectedImage);
-                mImageView.setImageBitmap(bitmap);
+                Matrix matrix = new Matrix();
+                Bitmap rotatedBitmap = Bitmap.createBitmap(bitmap , 0, 0, bitmap .getWidth(), bitmap .getHeight(), matrix, true);
+                matrix.postRotate(180);
+                mImageView.setImageBitmap(rotatedBitmap);
             } catch (FileNotFoundException e) {
                 // TODO Auto-generated catch block
                 e.printStackTrace();
@@ -244,15 +272,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         return byteBuffer.toByteArray();
     }
 
-    public void upload() throws FileNotFoundException, UnsupportedEncodingException {
-//        Bitmap bm = BitmapFactory.decodeFile(imgPath);
-        Bitmap bm= ((BitmapDrawable) mImageView.getDrawable()).getBitmap();
-        ByteArrayOutputStream stream = new ByteArrayOutputStream();
-        bm.compress(Bitmap.CompressFormat.PNG, 50, stream);
-        byte[] byteImage = stream.toByteArray();
-        System.out.println("byte from image bitmap size: "+byteImage.length);
-        img_upload = Base64.encodeToString(byteImage, Base64.DEFAULT);
-//        imgPath = "file:////"+imgPath;
+    public void getImage() throws FileNotFoundException, UnsupportedEncodingException {
+
         File file = new File(imgPath);
         FileInputStream fis = new FileInputStream(file);
         //System.out.println(file.exists() + "!!");
@@ -269,7 +290,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 //            Logger.getLogger(genJpeg.class.getName()).log(Level.SEVERE, null, ex);
         }
         byte[] bytes = bos.toByteArray();
-        System.out.println("image path: "+imgPath);
+//        System.out.println("image path: "+imgPath);
         img_upload = Base64.encodeToString(bytes, Base64.DEFAULT);
 //        System.out.println("image from gallery "+str64.length());
 //
@@ -303,82 +324,91 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     }
 
+    @Override
+    public void processFinish(String output) {
+        txtRes.setText(output);
+    }
+
     /**
      * inner upload conn class
      */
     public class RecognitionWorker extends AsyncTask<Void, Void, String> {
 
         private ProgressDialog pd;
+        public AsyncResponse delegate = null;
 
         public RecognitionWorker () {
             pd = new ProgressDialog(MainActivity.this);
+            pd.setMessage("pairing...");
+            pd.show();
         }
-        @Override
-        protected String doInBackground(Void... params) {
 
-            try{
-                    Log.d("conn" ,"connection start");
+
+
+        public void upload() throws IOException, JSONException {
+            DataOutputStream wr;
+            InputStreamReader isw;
+            HttpURLConnection conn;
+
+            URL url = new URL("https://zc2oz2npjg.execute-api.us-east-1.amazonaws.com/ImageTable/results/1");
+
+            Log.d("conn" ,"connection start");
 //                    URL url = new URL("https://zc2oz2npjg.execute-api.us-east-1.amazonaws.com/ImageTable/images");
-                URL url = new URL("https://zc2oz2npjg.execute-api.us-east-1.amazonaws.com/ImageTable/results/1");
-                    HttpURLConnection conn = (HttpURLConnection) url.openConnection();
-                    conn.setRequestProperty("Content-Type", "application/json; charset=UTF8"); // here you are setting the `Content-Type` for the data you are sending which is `application/json`
-                    conn.setReadTimeout(10000);
-                    conn.setConnectTimeout(15000);
-                    conn.setRequestMethod("POST");
-                    conn.setDoInput(true);
-                    conn.setDoOutput(true);
 
-                //json or ?
-                /*
-                Request
-    {
-        "body": {
-            "TableName": "Image",
-            "ImageName": "Henry17",
-            "Content": "He is going hiking"
-        }
-    }
-    {
-        "object": {
-            "key": "Henry19.jpg",
-            "data": "What about you?"
-        }
-    }
-                 */
-                upload();
+            conn = (HttpURLConnection) url.openConnection();
+            conn.setRequestProperty("Content-Type", "application/json; charset=UTF8"); // here you are setting the `Content-Type` for the data you are sending which is `application/json`
+            conn.setReadTimeout(10000000);
+            conn.setConnectTimeout(15000000);
+            conn.setRequestMethod("POST");
+            conn.setDoInput(true);
+            conn.setDoOutput(true);
 
-                JSONObject req = new JSONObject();
-                JSONObject object = new JSONObject();
+
+            getImage();
+
+            JSONObject req = new JSONObject();
+            JSONObject object = new JSONObject();
 //                object.put("key", "testwenjin.jpg");
 //                object.put("data", img_upload);
-                object.put("ImageName", "testwenjin.jpg");
-                object.put("Content", img_upload);
-                System.out.println("image to upload size: "+img_upload.length());
+            object.put("ImageName", System.currentTimeMillis()+".jpg");
+            object.put("Content", img_upload);
+            System.out.println("image to upload size: "+img_upload.length());
 //                req.put("object", object);
-                req.put("body", object);
-                DataOutputStream wr = new DataOutputStream(conn.getOutputStream());
-                wr.writeBytes(req.toString());
-                wr.flush();
-                wr.close();
+            req.put("body", object);
+            wr = new DataOutputStream(conn.getOutputStream());
+            wr.writeBytes(req.toString());
+            wr.flush();
+            wr.close();
 
-                InputStream in = conn.getInputStream();
-                InputStreamReader isw = new InputStreamReader(in);
+            System.out.println("upload complete");
+            Log.d("response", ""+conn.getResponseCode()+", "+conn.getResponseMessage());
+            // get response
+            InputStream responseStream = new BufferedInputStream(conn.getInputStream());
+            BufferedReader responseStreamReader = new BufferedReader(new InputStreamReader(responseStream));
+            String line = "";
+            StringBuilder stringBuilder = new StringBuilder();
+            while ((line = responseStreamReader.readLine()) != null) {
+                stringBuilder.append(line);
+            }
+            responseStreamReader.close();
+            String response = stringBuilder.toString();
+//            JSONObject jsonResponse = new JSONObject(response);
+            System.out.println("response from server: "+ response);
+            returnFromServer = response;
 
-                int data = isw.read();
-                while (data != -1) {
-                    char current = (char) data;
-                    data = isw.read();
-                    System.out.print(current);
-                }
-//                Log.d("response", ""+conn.getResponseCode()+", "+conn.getResponseMessage());
-                conn.disconnect();
 
-//                conn.connect();
+        }
+        @Override
+        protected String doInBackground(Void... params){
+
+            try{
+                upload();
             }catch (Exception e){
                 e.printStackTrace();
-            }finally {
             }
-            return "Success";
+
+            return returnFromServer;
+
         }
 
         @Override
@@ -386,6 +416,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             super.onPostExecute(s);
             pd.hide();
             pd.dismiss();
+            delegate.processFinish(s);
+
         }
     }
 }
