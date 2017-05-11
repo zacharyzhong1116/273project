@@ -14,8 +14,8 @@ def respond(err, res=None):
         'statusCode': '400' if err else '200',
         'body': err.message if err else json.dumps(res),
         'headers': {
-            'Content-Type': 'application/json',
-        },
+            'Content-Type': 'application/json'
+        }
     }
 
 
@@ -77,6 +77,7 @@ def lambda_handler(event, context):
 
             # The content of the first picture
             content = payload['Content']
+            # print("get image content = " + content)
             # if content != "":
             #     content = base64.b64encode(content)
             # content1 = content
@@ -146,14 +147,35 @@ def lambda_handler(event, context):
             for item in items:
                 item['Similarity'] = int(item['Similarity'])
 
+            dynamoResult = boto3.resource('dynamodb').Table('ImageResult')
+            response = dynamoResult.scan()
+            items = response['Items']
+
+            # Compare with all the pictures in the database.
+            for item in items:
+                imageName2 = item['ImageName']
+                similarity2 = item['Similarity']
+                print("Deleting " + imageName2 + " from table: " + event['tableName'])
+                response = dynamoResult.delete_item(
+                    Key={
+                        'ImageName': imageName2,
+                        'Similarity': similarity2
+                    }
+                )
+
             # print("response['Items'][0] = " + items[0])
             if len(items) != 0:
                 print("items = " + str(items))
-                result = {"Exist": exist, "Response": items}
-                return respond(None, result)
+                # result = {"Exist": exist, "Response": items}
+                # return respond(None, result)
+                print("items[0]['Similarity'] = " + str(items[0]['Similarity']))
+                return json.dumps(str(items[0]['Similarity']))
+                # return respond(None, json.dumps(items[0]['Similarity']))
             else:
-                result = {"Exist": exist, "Response": "No matching images"}
-                return respond(None, result)
+                return json.dumps('0')
+                # result = {"Exist": exist, "Response": "No matching images"}
+                # return respond(None, result)
+                # return json.dumps(result)
         elif operation == "DELETE":
             # get the Count(*) from table "Result".
             dynamoResult = boto3.resource('dynamodb').Table(event['tableName'])
