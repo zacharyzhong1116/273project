@@ -1,0 +1,22 @@
+Face Recognition System
+
+Database:
+Use AWS S3 to store pictures and use dynomaDB store the output of the match result.
+
+Face Recognition Api:
+ version1:OpenCV  
+ version2: Face Compare
+ 
+ Server: Lambda
+ 
+Others: Api Gateway
+
+
+Client End:
+1)Client can post their pictures to AWS S3 as the source pics they want to match to.
+2)Client can use a camera on the phone to take a picture and match the pics in database.
+
+Server End:
+Use the AWS Face Compare to compare the source pic and the pic user uploaded. It will return the simility as the compare result 
+which is between 0-100. Th higher, the better.
+We set a filter to similit. If the result is samller than 50. Sys will set it to 0 which means doesn't match.
