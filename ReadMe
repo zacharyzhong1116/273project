@@ -4,7 +4,7 @@ Database:
 Use AWS S3 to store pictures and use dynomaDB store the output of the match result.
 
 Face Recognition Api:
- version1:OpenCV  
+ version1: AWS Rekognition   
  version2: Face Compare
  
  Server: Lambda
